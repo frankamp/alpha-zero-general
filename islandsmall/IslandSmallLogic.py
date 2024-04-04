@@ -18,7 +18,7 @@ Based on the board for the game of Othello by Eric P. Nichols.
 # from bkcharts.attributes import color
 class Board():
     NUM_ENCODERS = 3
-    ENCODERS_MAP = {'present': 0, 'piece': 1, 'stacked': 2}
+    ENCODERS_MAP = {'present': 0, 'piece': 1, 'stacked': 2, 'last': 3}
     EATS_BELOW = 3
     # list of all 8 directions on the board, as (x,y) offsets
     #__directions = [(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1)]
