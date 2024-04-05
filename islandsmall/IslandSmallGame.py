@@ -41,11 +41,12 @@ class IslandSmallGame(Game):
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
         # action must be a valid move
+        # TODO: find caller and figure out what the structure of action is, need better contract
         if action == self.n*self.n:
             return (board, -player)
         b = Board(self.n)
         b.pieces = np.copy(board)
-        move = (int(action/self.n), action%self.n)
+        move = (int(action/self.n), action%self.n) # this looks weird,
         b.execute_move(move, player)
         return (b.pieces, -player)
 
@@ -101,8 +102,14 @@ class IslandSmallGame(Game):
         # 8x8 numpy array (canonical board)
         return board.tostring()
     
+    def formatSquare(self, square):
+        if square[0]:
+            return str(int(square[1]))
+        else:
+            return "-"
+
     def stringRepresentationReadable(self, board):
-        board_s = " ".join(str(int(square[1])) for row in board for square in row)
+        board_s = " ".join(self.formatSquare(square) for row in board for square in row)
         return board_s
 
     @staticmethod

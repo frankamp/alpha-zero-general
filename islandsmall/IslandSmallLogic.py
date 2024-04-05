@@ -17,11 +17,14 @@ Based on the board for the game of Othello by Eric P. Nichols.
 '''
 # from bkcharts.attributes import color
 class Board():
-    NUM_ENCODERS = 3
-    ENCODERS_MAP = {'present': 0, 'piece': 1, 'stacked': 2, 'last': 3}
+    NUM_ENCODERS = 4
+    ENCODER_PRESENT = 0
+    ENCODER_PIECE = 1
+    ENCODER_STACKED = 2
+    ENCODER_LAST = 3
     EATS_BELOW = 3
-    # list of all 8 directions on the board, as (x,y) offsets
-    #__directions = [(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1)]
+    # list of all for adjacent directions on the board, as (x,y) offsets
+    __directions = [(1,0),(0,-1),(-1,0),(0,1)]
 
     def __init__(self, seed):
         "Set up initial board configuration."
@@ -44,13 +47,27 @@ class Board():
         @param color not used and came from previous version.        
         """
         moves = set()  # stores the legal moves.
-        # TODO: change to get all NON empty squares, enumerating adjacent squares that are n-EATS_BELOW
-        # Get all the empty squares (color==0)
+        upperx = self.pieces.shape[0] - 1
+        uppery = self.pieces.shape[1] - 1
+        #print("")
         for y in range(self.n):
             for x in range(self.n):
-                if self[x][y]==0:
-                    newmove = (x,y)
-                    moves.add(newmove)
+                if self[x][y][self.ENCODER_PRESENT] == 1:
+                    # check adjacencies according to rules
+                    for (deltax, deltay) in self.__directions:
+                        # out of bounds check
+                        if x + deltax < 0 or y + deltay < 0 or (x + deltax) > upperx or (y + deltay) > uppery:
+                            continue
+                        # if the adjacent piece is present
+                        # and edible
+                        #print(f"consider move from {x} {y} in dir {deltax} {x + deltax} {deltay} {y + deltay} {self.pieces.shape[1]}")
+                        if self[x + deltax][y + deltay][self.ENCODER_PRESENT] == 1 \
+                            and 1 <= \
+                                self[x][y][self.ENCODER_PIECE] - self[x+deltax][y+deltay][self.ENCODER_PIECE] \
+                                <= self.EATS_BELOW:
+                            newmove = (x, y, x + deltax, y + deltay)
+                            moves.add(newmove)
+                            #print("found move")
         return list(moves)
 
     def has_legal_moves(self):
@@ -108,12 +125,14 @@ class Board():
         color gives the color pf the piece to play (1=white,-1=black)
         """
 
-        (x,y) = move
+        (x, y, targetx, targety) = move
         # TODO: modify to 'eat' and also change the rules depending on who did the eating if there is a rule change
         # also check for whether this method returns the next user, it might in which case its one of the places we
         # can hook to let one player 'play out' the game, and then the other once there are no more valid moves.
         # in that case there will only be one 'is_win' and we can score and reset the game when the has_valid_moves runs out for the first
         # Add the piece to the empty square.
-        assert self[x][y] == 0
-        self[x][y] = color
+        # TODO: can illegal moves be passed to me? do i have to validate?
+        self[targetx][targety] = self[x][y]
+        self[targetx][targety][self.ENCODER_STACKED] = 1
+        self[x][y][self.ENCODER_PRESENT] = 0
 
