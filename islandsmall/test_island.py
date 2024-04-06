@@ -77,3 +77,20 @@ def test_exec_move():
     assert b.pieces[0][1][ENCODER_STACKED] == 1
     assert b.pieces[0][1][ENCODER_LAST] == 0
     assert b.pieces[1][1][ENCODER_LAST] == 1
+
+def test_exec_game_move():
+    # Define the dimensions
+    n = 3
+
+    # Define the indices
+    indices = (0, 2, 0, 1)
+    action = np.ravel_multi_index(indices, (n, n, n, n))
+    print(action)
+    g = IslandSmallGame([1,2,3,6,5,4,7,8,0])
+    (nextBoard, _) = g.getNextState(g.getInitBoard(), 1, action)
+    assert "1 3 - 6 5 4 7 8 0" == g.stringRepresentationReadable(nextBoard)
+
+def test_get_valid():
+    g = IslandSmallGame([1,2,3,6,5,4,7,8,0])
+    m = g.getValidMoves(g.getInitBoard(), 1)
+    assert [] == m # see TODO:

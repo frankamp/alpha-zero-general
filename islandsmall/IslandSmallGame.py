@@ -15,11 +15,7 @@ Date: Jan 5, 2018.
 Based on the OthelloGame by Surag Nair.
 """
 class IslandSmallGame(Game):
-    square_content = {
-        -1: "X",
-        +0: "-",
-        +1: "O"
-    }
+
     n = 3
 
     def __init__(self, seed=[0,1,2,3,4,5,6,7,8]):
@@ -36,38 +32,40 @@ class IslandSmallGame(Game):
 
     def getActionSize(self):
         # return number of actions
-        return self.n*self.n + 1
+        return self.n*self.n + 1 # the last item is a special signifier of no more valid moves
 
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
         # action must be a valid move
         # TODO: find caller and figure out what the structure of action is, need better contract
-        if action == self.n*self.n:
+        if action == self.n*self.n: # this must be e.g. something akin to there are no moves for me, your turn?
             return (board, -player)
-        b = Board(self.n)
-        b.pieces = np.copy(board)
-        move = (int(action/self.n), action%self.n) # this looks weird,
+        b = Board(seed=None, pieces=np.copy(board))
+        (x, y, targetx, targety) = np.unravel_index(action, [self.n, self.n, self.n, self.n])
+        move = (x, y, targetx, targety)
         b.execute_move(move, player)
         return (b.pieces, -player)
 
     def getValidMoves(self, board, player):
         # return a fixed size binary vector
+        # TODO: this appears to be inefficient because getValidMoves should be read only
+        # there should be no cause to e.g. copy the board, we should be able to jsut use it.
+        # it also looks like maybe the action size of the game is one larger than the vlaid moves on the board
+        # correpsonding to 'no more legal moves left for me'. This might be triggering e.g. getNextState if action== 
         valids = [0]*self.getActionSize()
-        b = Board(self.n)
-        b.pieces = np.copy(board)
+        b = Board(seed=None, pieces=np.copy(board))
         legalMoves =  b.get_legal_moves(player)
         if len(legalMoves)==0:
             valids[-1]=1
             return np.array(valids)
-        for x, y in legalMoves:
-            valids[self.n*x+y]=1
+        for x, y, targetx, targety in legalMoves:
+            valids[self.n*x+y]=1 # TODO: this is not the right encoding scheme, we need to use the one accepted by getNextState
         return np.array(valids)
 
     def getGameEnded(self, board, player):
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
-        b = Board(self.n)
-        b.pieces = np.copy(board)
+        b = Board(seed=None, pieces=np.copy(board))
 
         if b.is_win(player):
             return 1
@@ -80,7 +78,7 @@ class IslandSmallGame(Game):
 
     def getCanonicalForm(self, board, player):
         # return state if player==1, else return -state if player==-1
-        return player*board
+        return board # we dont do inversion because we plan to play both players back to back
 
     def getSymmetries(self, board, pi):
         # mirror, rotational

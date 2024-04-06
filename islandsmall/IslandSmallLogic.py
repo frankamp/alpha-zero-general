@@ -22,15 +22,15 @@ class Board():
     # list of all for adjacent directions on the board, as (x,y) offsets
     __directions = [(1,0),(0,-1),(-1,0),(0,1)]
 
-    def __init__(self, seed):
+    def __init__(self, seed, pieces=None):
         "Set up initial board configuration."
-
         self.n = 3
-        # TODO: create a seeded board
-        # Create the empty board array.
-        self.pieces = np.zeros((self.n, self.n, NUM_ENCODERS))
-        self.pieces[:, :, ENCODER_PRESENT] = np.array([1] * self.n * self.n).reshape(self.n, self.n) # all present
-        self.pieces[:, :, ENCODER_PIECE] = np.array(seed).reshape(self.n, self.n) # which piece
+        if (pieces is not None):
+            self.pieces = pieces
+        else:
+            self.pieces = np.zeros((self.n, self.n, NUM_ENCODERS))
+            self.pieces[:, :, ENCODER_PRESENT] = np.array([1] * self.n * self.n).reshape(self.n, self.n) # all present
+            self.pieces[:, :, ENCODER_PIECE] = np.array(seed).reshape(self.n, self.n) # which piece
 
 
     # add [][] indexer syntax to the Board
