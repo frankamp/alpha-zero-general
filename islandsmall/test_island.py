@@ -60,7 +60,8 @@ def test_legal_move():
     b = Board([1,2,3,6,5,4,7,8,0])
     moves = b.get_legal_moves(1)
     assert [(0, 2, 0, 1), (1, 0, 1, 1), (0, 1, 0, 0), (1, 1, 1, 2), (2, 1, 2, 0), (1, 1, 0, 1), (1, 2, 0, 2), (2, 1, 1, 1), (2, 0, 1, 0)] == moves
-    
+    assert b.has_legal_moves()
+
 def test_exec_move():
     g = IslandSmallGame([1,2,3,6,5,4,7,8,0])
     b = Board([1,2,3,6,5,4,7,8,0])

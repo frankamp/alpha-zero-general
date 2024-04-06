@@ -37,7 +37,7 @@ class Board():
     def __getitem__(self, index): 
         return self.pieces[index]
 
-    def get_legal_moves(self, color):
+    def get_legal_moves(self, color, shortcircuit=False):
         """Returns all the legal moves for the given color.
         (1 for white, -1 for black)
         @param color not used and came from previous version.        
@@ -59,20 +59,18 @@ class Board():
                         #print(f"consider move from {x} {y} in dir {deltax} {x + deltax} {deltay} {y + deltay} {self.pieces.shape[1]}")
                         if self[x + deltax][y + deltay][ENCODER_PRESENT] == 1 \
                             and 1 <= \
-                                self[x][y][ENCODER_PIECE] - self[x+deltax][y+deltay][ENCODER_PIECE] \
+                                self[x][y][ENCODER_PIECE] - self[x + deltax][y + deltay][ENCODER_PIECE] \
                                 <= EATS_BELOW:
                             newmove = (x, y, x + deltax, y + deltay)
                             moves.add(newmove)
+                            if shortcircuit:
+                                return moves
                             #print("found move")
         return list(moves)
 
     def has_legal_moves(self):
-        # TODO: reimplement to call get_legal_moves with a short circuit flag
-        for y in range(self.n):
-            for x in range(self.n):
-                if self[x][y]==0:
-                    return True
-        return False
+        moves = self.get_legal_moves(1, shortcircuit=True)
+        return len(moves) > 0
     
     def is_win(self, color):
         """Check whether the given player has collected a triplet in any direction; 
