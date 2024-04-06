@@ -90,9 +90,7 @@ class IslandSmallGame(Game):
         return board # we dont do inversion because we plan to play both players back to back
 
     def getSymmetries(self, board, pi):
-        # mirror, rotational
-        assert(len(pi) == self.n**2+1)  # 1 for pass
-        pi_board = np.reshape(pi[:-1], (self.n, self.n))
+        pi_board = np.reshape(pi[:-1], (self.n, self.n, self.n, self.n))
         l = []
 
         for i in range(1, 5):
@@ -119,9 +117,19 @@ class IslandSmallGame(Game):
         board_s = " ".join(self.formatSquare(square) for row in board for square in row)
         return board_s
 
+    def display_with_scores(self, board, player):
+        print("")
+        if player == -1:
+            print(f"Black turn, white got: {self.white_stacks}")
+        else:
+            print("White turn")
+        self.display(board)
+    
     @staticmethod
     def display(board):
         n = board.shape[0]
+        
+        
         print("")
         print("   ", end="")
         for y in range(n):

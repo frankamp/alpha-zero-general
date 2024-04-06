@@ -30,6 +30,7 @@ class HumanIslandSmallPlayer():
         valid = self.game.getValidMoves(board, 1)
         for i in range(len(valid)):
             if valid[i]:
+                # TODO: fixup for ravel/unravel quad tuple
                 print(int(i/self.game.n), int(i%self.game.n))
         while True: 
             # Python 3.x
@@ -38,8 +39,8 @@ class HumanIslandSmallPlayer():
             # Python 2.x 
             # a = raw_input()
 
-            x,y = [int(x) for x in a.split(' ')]
-            a = self.game.n * x + y if x!= -1 else self.game.n ** 2
+            x,y,targetx,targety = [int(x) for x in a.split(' ')]
+            a = self.game.n * x + y if x!= -1 else self.game.n ** 2 # TODO: fixup for ravel/unravel quad tuple
             if valid[a]:
                 break
             else:

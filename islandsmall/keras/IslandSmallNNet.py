@@ -23,7 +23,7 @@ class IslandSmallNNet():
         self.args = args
 
         # Neural Net
-        self.input_boards = Input(shape=(self.board_x, self.board_y))    # s: batch_size x board_x x board_y
+        self.input_boards = Input(shape=(self.board_x, self.board_y, num_encoders))    # s: batch_size x board_x x board_y
 
         x_image = Reshape((self.board_x, self.board_y, num_encoders))(self.input_boards)                # batch_size  x board_x x board_y x 1
         h_conv1 = Activation('relu')(BatchNormalization(axis=3)(Conv2D(args.num_channels, 3, padding='same')(x_image)))         # batch_size  x board_x x board_y x num_channels
