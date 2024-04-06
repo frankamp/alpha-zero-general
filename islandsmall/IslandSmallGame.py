@@ -115,7 +115,7 @@ class IslandSmallGame(Game):
     @staticmethod
     def display(board):
         n = board.shape[0]
-
+        print("")
         print("   ", end="")
         for y in range(n):
             print (y,"", end="")
