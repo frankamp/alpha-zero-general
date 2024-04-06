@@ -94,4 +94,5 @@ def test_exec_game_move():
 def test_get_valid():
     g = IslandSmallGame([1,2,3,6,5,4,7,8,0])
     m = g.getValidMoves(g.getInitBoard(), 1)
-    assert [] == m # see TODO:
+    assert 9 == sum([i for i in m if i > 0]) # see TODO:
+    assert 82 == len(m) # 81 is the product of our action space, plus our 1 extra noop move

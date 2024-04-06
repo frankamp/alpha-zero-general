@@ -11,16 +11,7 @@ from utils import *
 from NeuralNet import NeuralNet
 
 import argparse
-from .TicTacToeNNet import TicTacToeNNet as onnet
-
-"""
-NeuralNet wrapper class for the TicTacToeNNet.
-
-Author: Evgeny Tyurin, github.com/evg-tyurin
-Date: Jan 5, 2018.
-
-Based on (copy-pasted from) the NNet by SourKream and Surag Nair.
-"""
+from .IslandSmallNNet import IslandSmallNNet as onnet
 
 args = dotdict({
     'lr': 0.001,
@@ -34,7 +25,7 @@ args = dotdict({
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.nnet = onnet(game, args)
-        self.board_x, self.board_y = game.getBoardSize()
+        self.board_x, self.board_y, _ = game.getBoardSize()
         self.action_size = game.getActionSize()
 
     def train(self, examples):

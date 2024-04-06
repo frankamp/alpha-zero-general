@@ -2,17 +2,11 @@ from __future__ import print_function
 import sys
 sys.path.append('..')
 from Game import Game
-from .IslandSmallLogic import Board
+from .IslandSmallLogic import Board, NUM_ENCODERS
 import numpy as np
 
 """
-Game class implementation for the game of TicTacToe.
-Based on the OthelloGame then getGameEnded() was adapted to new rules.
-
-Author: Evgeny Tyurin, github.com/evg-tyurin
-Date: Jan 5, 2018.
-
-Based on the OthelloGame by Surag Nair.
+A simplified version of food chain island logic/game, prepped for AZG
 """
 class IslandSmallGame(Game):
 
@@ -28,20 +22,22 @@ class IslandSmallGame(Game):
 
     def getBoardSize(self):
         # (a,b) tuple
-        return (self.n, self.n)
+        return (self.n, self.n, NUM_ENCODERS)
 
     def getActionSize(self):
-        # return number of actions
-        return self.n*self.n + 1 # the last item is a special signifier of no more valid moves
+        # return number of actions, actions in my game are signified by x,y,targetx,targety tuples, where those are positive integers bounded by the board
+        return np.prod((self.n, self.n, self.n, self.n)) + 1 # the last action is a special signifier of no more valid moves, or do nothing (i think)
 
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
         # action must be a valid move
         # TODO: find caller and figure out what the structure of action is, need better contract
-        if action == self.n*self.n: # this must be e.g. something akin to there are no moves for me, your turn?
+        if action == np.prod((self.n, self.n, self.n, self.n)): # this must be e.g. something akin to there are no moves for me, your turn?
+            print("special top action, short circuit condition")
+            input("return to continue")
             return (board, -player)
         b = Board(seed=None, pieces=np.copy(board))
-        (x, y, targetx, targety) = np.unravel_index(action, [self.n, self.n, self.n, self.n])
+        (x, y, targetx, targety) = np.unravel_index(action, (self.n, self.n, self.n, self.n))
         move = (x, y, targetx, targety)
         b.execute_move(move, player)
         return (b.pieces, -player)
@@ -55,11 +51,11 @@ class IslandSmallGame(Game):
         valids = [0]*self.getActionSize()
         b = Board(seed=None, pieces=np.copy(board))
         legalMoves =  b.get_legal_moves(player)
-        if len(legalMoves)==0:
-            valids[-1]=1
+        if len(legalMoves) == 0:
+            valids[-1] = 1
             return np.array(valids)
-        for x, y, targetx, targety in legalMoves:
-            valids[self.n*x+y]=1 # TODO: this is not the right encoding scheme, we need to use the one accepted by getNextState
+        for indices in legalMoves:
+            valids[np.ravel_multi_index(indices, (self.n, self.n, self.n, self.n))] = 1
         return np.array(valids)
 
     def getGameEnded(self, board, player):
