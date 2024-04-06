@@ -9,8 +9,9 @@ import numpy as np
 A simplified version of food chain island logic/game, prepped for AZG
 """
 class IslandSmallGame(Game):
-
+    white_stacks = 0
     n = 3
+    seed = []
 
     def __init__(self, seed=[0,1,2,3,4,5,6,7,8]):
         self.seed = seed
@@ -40,7 +41,12 @@ class IslandSmallGame(Game):
         (x, y, targetx, targety) = np.unravel_index(action, (self.n, self.n, self.n, self.n))
         move = (x, y, targetx, targety)
         b.execute_move(move, player)
-        return (b.pieces, -player)
+        next_player = player
+        if player == 1 and not b.has_legal_moves():
+            self.white_stacks = b.count_stacks()
+            b = Board(seed=self.seed) # wipe the board, reset it to the seed
+            next_player = -player
+        return (b.pieces, next_player)
 
     def getValidMoves(self, board, player):
         # return a fixed size binary vector
@@ -62,15 +68,22 @@ class IslandSmallGame(Game):
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
         b = Board(seed=None, pieces=np.copy(board))
-
-        if b.is_win(player):
-            return 1
-        if b.is_win(-player):
-            return -1
+        # if player is white, there is no end to the game, even with no legal moves,
+        # because we are going to reset it for the purposes of reusing it
+        if player == 1:
+            return 0
         if b.has_legal_moves():
             return 0
-        # draw has a very little value 
-        return 1e-4
+        assert self.white_stacks > 0
+        black_stacks = b.count_stacks()
+        white_stacks = self.white_stacks
+        self.white_stacks = 0 # I am not sure if the game instance is reused, so we need to reset it
+        if black_stacks > white_stacks:
+            return -1 # black won
+        elif black_stacks < white_stacks:
+            return 1
+        else:
+            return 1e-4 # special e.g. little value value for draw
 
     def getCanonicalForm(self, board, player):
         # return state if player==1, else return -state if player==-1

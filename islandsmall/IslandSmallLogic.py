@@ -72,47 +72,22 @@ class Board():
         moves = self.get_legal_moves(1, shortcircuit=True)
         return len(moves) > 0
     
+    def count_stacks(self):
+        return np.sum(self.pieces[:, :, ENCODER_PRESENT])
+    
     def is_win(self, color):
         """Check whether the given player has collected a triplet in any direction; 
         @param color (1=white,-1=black)
         """
-        # TODO: this might be involved in your multi user (user1 plays the full game, user2 plays the full game, then we determine 'winner' or tie)
-        # because of that we might need to know whether we have to defer, or the score of the previous player depending on the level of abstraction
-        # that the second of the paired games runs. i.e. maybe we can arrange for is_win to be called twice? but then we need to interpret
-        # if it is called once after both players get a chance, then we need to lookup the score for the first player (or carry it through via some other means)
-        # if we go side-by-side we wont have this problem i think? as long as both players get called for is_win (because they can both win in that case it is a tie)
-        win = self.n
-        # check y-strips
-        for y in range(self.n):
-            count = 0
-            for x in range(self.n):
-                if self[x][y]==color:
-                    count += 1
-            if count==win:
-                return True
-        # check x-strips
-        for x in range(self.n):
-            count = 0
-            for y in range(self.n):
-                if self[x][y]==color:
-                    count += 1
-            if count==win:
-                return True
-        # check two diagonal strips
-        count = 0
-        for d in range(self.n):
-            if self[d][d]==color:
-                count += 1
-        if count==win:
-            return True
-        count = 0
-        for d in range(self.n):
-            if self[d][self.n-d-1]==color:
-                count += 1
-        if count==win:
-            return True
+        # this may not be used at all, we dont call it from game, the logic and scoring
+        # are handled there because the game is not 'winnable' adversarially, we have to let both
+        # agents play it out entirely
         
-        return False
+        # for island, there is no win condition (game ending) unless there are no more legal moves. If there are legal moves, the game is not won (or lost)
+        if self.has_legal_moves():
+            return False
+        else:
+            return True
 
     def execute_move(self, move, color):
         """Perform the given move on the board; 
