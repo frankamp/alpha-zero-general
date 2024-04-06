@@ -1,28 +1,24 @@
 import numpy as np
+
+NUM_ENCODERS = 4
+ENCODER_PRESENT = 0
+ENCODER_PIECE = 1
+ENCODER_STACKED = 2
+ENCODER_LAST = 3
+EATS_BELOW = 3
 '''
 Board class for the game of Food chain island small (modified food chain island).
 Default board size is 3x3.
 Board data:
-  1=white(O), -1=black(X), 0=empty
-  first dim is column , 2nd is row:
+  first dim is row , 2nd is col:
      pieces[0][0] is the top left square,
      pieces[2][0] is the bottom left square,
 Squares are stored and manipulated as (x,y) tuples.
-
-Author: Evgeny Tyurin, github.com/evg-tyurin
-Date: Jan 5, 2018.
-
-Based on the board for the game of Othello by Eric P. Nichols.
-
+The third dimension is an array of dimension NUM_ENCODERS, containing the ENCODER values in positions above
 '''
 # from bkcharts.attributes import color
 class Board():
-    NUM_ENCODERS = 4
-    ENCODER_PRESENT = 0
-    ENCODER_PIECE = 1
-    ENCODER_STACKED = 2
-    ENCODER_LAST = 3
-    EATS_BELOW = 3
+    
     # list of all for adjacent directions on the board, as (x,y) offsets
     __directions = [(1,0),(0,-1),(-1,0),(0,1)]
 
@@ -32,9 +28,9 @@ class Board():
         self.n = 3
         # TODO: create a seeded board
         # Create the empty board array.
-        self.pieces = np.zeros((self.n, self.n, self.NUM_ENCODERS))
-        self.pieces[:, :, 0] = np.array([1] * self.n * self.n).reshape(self.n, self.n) # all present
-        self.pieces[:, :, 1] = np.array(seed).reshape(self.n, self.n) # which piece
+        self.pieces = np.zeros((self.n, self.n, NUM_ENCODERS))
+        self.pieces[:, :, ENCODER_PRESENT] = np.array([1] * self.n * self.n).reshape(self.n, self.n) # all present
+        self.pieces[:, :, ENCODER_PIECE] = np.array(seed).reshape(self.n, self.n) # which piece
 
 
     # add [][] indexer syntax to the Board
@@ -52,7 +48,7 @@ class Board():
         #print("")
         for y in range(self.n):
             for x in range(self.n):
-                if self[x][y][self.ENCODER_PRESENT] == 1:
+                if self[x][y][ENCODER_PRESENT] == 1:
                     # check adjacencies according to rules
                     for (deltax, deltay) in self.__directions:
                         # out of bounds check
@@ -61,10 +57,10 @@ class Board():
                         # if the adjacent piece is present
                         # and edible
                         #print(f"consider move from {x} {y} in dir {deltax} {x + deltax} {deltay} {y + deltay} {self.pieces.shape[1]}")
-                        if self[x + deltax][y + deltay][self.ENCODER_PRESENT] == 1 \
+                        if self[x + deltax][y + deltay][ENCODER_PRESENT] == 1 \
                             and 1 <= \
-                                self[x][y][self.ENCODER_PIECE] - self[x+deltax][y+deltay][self.ENCODER_PIECE] \
-                                <= self.EATS_BELOW:
+                                self[x][y][ENCODER_PIECE] - self[x+deltax][y+deltay][ENCODER_PIECE] \
+                                <= EATS_BELOW:
                             newmove = (x, y, x + deltax, y + deltay)
                             moves.add(newmove)
                             #print("found move")
@@ -133,6 +129,9 @@ class Board():
         # Add the piece to the empty square.
         # TODO: can illegal moves be passed to me? do i have to validate?
         self[targetx][targety] = self[x][y]
-        self[targetx][targety][self.ENCODER_STACKED] = 1
-        self[x][y][self.ENCODER_PRESENT] = 0
+        self.pieces[x, y, :] = 0 # clear vacated
+        self[targetx][targety][ENCODER_STACKED] = 1 # mark target as stacked
+        self.pieces[:, :, ENCODER_LAST] = 0 # clear last from every location
+        self[targetx][targety][ENCODER_LAST] = 1 # set last on target
+
 

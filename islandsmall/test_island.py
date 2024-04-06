@@ -8,7 +8,7 @@ import textwrap
 import numpy as np
 
 from .IslandSmallGame import IslandSmallGame
-from .IslandSmallLogic import Board
+from .IslandSmallLogic import Board, ENCODER_LAST, ENCODER_PIECE, ENCODER_PRESENT, ENCODER_STACKED
 # # Tuple of (Board, Player, Game) to simplify testing.
 # BPGTuple = namedtuple('BPGTuple', 'board player game')
 
@@ -67,6 +67,10 @@ def test_exec_move():
     b.execute_move((0, 2, 0, 1), 1)
     g.display(b.pieces)
     assert "1 3 - 6 5 4 7 8 0" == g.stringRepresentationReadable(b.pieces)
-    assert b.pieces[0][1][2] == 1 # stacked, TODO: expose the constants re encoder offsets because they are leaking
-    # TODO: handle the last bit, and ensure that other last bits are being cleared
-    # TODO: ensure that all the encoder locations are cleared on an empty space, so to not offer information 
+    assert b.pieces[0][1][ENCODER_STACKED] == 1
+    assert b.pieces[0][1][ENCODER_LAST] == 1
+    b.execute_move((1, 0, 1, 1), 1)
+    g.display(b.pieces)
+    assert b.pieces[0][1][ENCODER_STACKED] == 1
+    assert b.pieces[0][1][ENCODER_LAST] == 0
+    assert b.pieces[1][1][ENCODER_LAST] == 1
