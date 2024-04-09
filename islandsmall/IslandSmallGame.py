@@ -19,6 +19,7 @@ class IslandSmallGame(Game):
     def getInitBoard(self):
         # return initial board (numpy board)
         b = Board(self.seed)
+        self.white_stacks = 0 # I am not sure if the game instance is reused, so we need to reset it
         return np.array(b.pieces)
 
     def getBoardSize(self):
@@ -67,20 +68,26 @@ class IslandSmallGame(Game):
     def getGameEnded(self, board, player):
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
+        
         b = Board(seed=None, pieces=np.copy(board))
+        # short circuit
+        if b.has_legal_moves():
+            return 0
+        # I am not sure if this prevents learning, but it still should work, ranking one agent above another?
+        if player == 0: # implementing special player 0, it is like player 1 but it is during monty carlo, we will bypass
+            return 1 - (b.count_stacks() * .1) # kind of arbitrary score?
+
         # if player is white, there is no end to the game, even with no legal moves,
         # because we are going to reset it for the purposes of reusing it
         if player == 1:
             return 0
-        if b.has_legal_moves():
-            return 0
         assert self.white_stacks > 0
         black_stacks = b.count_stacks()
         white_stacks = self.white_stacks
-        self.white_stacks = 0 # I am not sure if the game instance is reused, so we need to reset it
-        if black_stacks > white_stacks:
+        print(f" black {black_stacks} white {white_stacks}")
+        if black_stacks < white_stacks:
             return -1 # black won
-        elif black_stacks < white_stacks:
+        elif black_stacks > white_stacks:
             return 1
         else:
             return 1e-4 # special e.g. little value value for draw

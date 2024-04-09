@@ -60,7 +60,13 @@ class Arena():
             assert self.display
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
             self.display(board)
-        return curPlayer * self.game.getGameEnded(board, curPlayer)
+        # TODO: look at why this was done, the math never worked in playgames
+        # without just retrurning getGameEnded, they were trying to be 'smart'
+        # multiplying it by curPlayer something that keeps getting manipulated
+        # also what you return has NOTHING to do with the current player, it only has
+        # to do with the winning player e.g. the player that is moving last isn't
+        # always going to be the winner, winning has all kinds of conditions
+        return self.game.getGameEnded(board, curPlayer)
 
     def playGames(self, num, verbose=False):
         """

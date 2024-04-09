@@ -75,7 +75,7 @@ class MCTS():
         s = self.game.stringRepresentation(canonicalBoard)
 
         if s not in self.Es:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 0)  # passing special player 0 which indicates montycarlo, testing going around
         if self.Es[s] != 0:
             # terminal node
             return -self.Es[s]
@@ -119,7 +119,7 @@ class MCTS():
                     best_act = a
 
         a = best_act
-        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
+        next_s, next_player = self.game.getNextState(canonicalBoard, 0, a) # passing special player 0 which indicates montycarlo, testing going around
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
         v = self.search(next_s)
